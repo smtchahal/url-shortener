@@ -1,16 +1,16 @@
 import os
 
-from .common import *
+from .common import *  # noqa
 
 try:
-    from .dev import *
+    from .dev import *  # noqa
 except ImportError:
     pass
 
 try:
-    from .prod import *
+    from .prod import *  # noqa
 except ImportError:
     pass
 
 if 'DYNO' in os.environ:
-    from .heroku import *
+    from .heroku import *  # noqa
