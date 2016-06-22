@@ -108,3 +108,5 @@ USE_TZ = True
 
 # Only `./manage.py runserver` cares about this
 STATIC_ROOT = os.path.join(APP_DIR, 'static')
+
+STATIC_URL = '/static/'

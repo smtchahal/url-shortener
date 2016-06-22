@@ -7,5 +7,3 @@ DATABASES = {
 DEBUG = False
 
 ALLOWED_HOSTS = ['.herokuapp.com']
-
-STATIC_URL = '/static/'
