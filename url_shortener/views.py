@@ -37,7 +37,7 @@ def redirect(request, alias, preview=''):
     link = get_object_or_404(Link, alias=alias)
     if preview:
         abs_uri = request.build_absolute_uri()
-        full_alias = '{}/{}'.format(request.META['SERVER_NAME'], alias)
+        full_alias = abs_uri[len(request.scheme)+3:-1]  # scheme://[helloworld.com/alias]+
         return render(request, 'url_shortener/preview.html', {
             'alias': alias,
             'full_alias': full_alias,
