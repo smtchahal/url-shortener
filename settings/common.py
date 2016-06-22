@@ -105,8 +105,3 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-
-# Only `./manage.py runserver` cares about this
-STATIC_ROOT = os.path.join(APP_DIR, 'static')
-
-STATIC_URL = '/static/'
