@@ -1,0 +1,59 @@
+{% extends 'url_shortener/base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+{% autoescape on %}
+<form role="form" action="{% url 'url_shortener:index' %}" method="post">
+  {% csrf_token %}
+
+  {% for error in form.non_field_errors %}
+  <div class="alert alert-danger" role="alert">
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    <span class="sr-only">Error</span>
+    {{ error }}
+  </div>
+  {% endfor %}
+
+  <div class="form-group">
+    {% for error in form.url.errors %}
+    <div class="alert alert-danger" role="alert">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      <span class="sr-only">Error</span>
+      {{ error }}
+    </div>
+    {% endfor %}
+    <label for="{{ form.url.id_for_label }}">{{ form.url.label }}</label>
+    <div class="input-group{% if form.url.errors %} has-error{% endif %}">
+      {{ form.url|add_class:"form-control input-lg"|attr:"aria-describedby:url-addon" }}
+      <span class="input-group-btn">
+        <button class="btn btn-primary btn-lg" type="submit">Go!</button>
+      </span>
+    </div>
+  </div>
+
+  <!--
+  <div class="form-group">
+    <input class="btn btn-primary center-block" type="submit" value="Make it short!" />
+  </div> -->
+
+  <div class="form-group">
+    {% for error in form.alias.errors %}
+    <div class="alert alert-danger" role="alert">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+      <span class="sr-only">Error</span>
+      {{ error }}
+    </div>
+    {% endfor %}
+    <label for="{{ form.alias.id_for_label }}">{{ form.alias.label }}</label>
+    <div class="input-group{% if form.alias.errors %} has-error{% endif %}">
+      <span class="input-group-addon" id="alias-addon">{{ request.build_absolute_uri }}</span>
+      {{ form.alias|add_class:"form-control"|attr:"aria-describedby:alias-addon" }}
+    </div>
+  </div>
+
+</form>
+{% endautoescape %}
+{% endblock %}
