@@ -1,0 +1,12 @@
+{
+  "name": "URL Shortener",
+  "description": "A simple Django-based URL shortening web app.",
+  "repository": "https://github.com/smtchahal/url-shortener",
+  "keywords": ["python", "django", "url"],
+  "scripts": {
+    "postdeploy": "python manage.py migrate"
+  },
+  "addons": [
+      "heroku-postgresql"
+  ]
+}
