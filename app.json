@@ -4,9 +4,20 @@
   "repository": "https://github.com/smtchahal/url-shortener",
   "keywords": ["python", "django", "url"],
   "scripts": {
-    "postdeploy": "python manage.py migrate"
+    "postdeploy": "python manage.py migrate --noinput"
   },
   "addons": [
       "heroku-postgresql"
-  ]
+  ],
+  "success_url": "/",
+  "env": {
+    "SECRET_KEY": {
+      "description": "A randomly generated secret to secure your Django installation.",
+      "generator": "secret"
+    },
+    "DISABLE_COLLECTSTATIC": {
+      "description": "Don't run python manage.py collectstatic --noinput on deploy",
+      "value": "1"
+    }
+  }
 }
