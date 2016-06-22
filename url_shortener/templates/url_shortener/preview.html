@@ -5,6 +5,9 @@
 <h2>Preview of <strong>{{ full_alias }}</strong></h2>
 <p>This short URL redirects to:</p>
 <div id="url" class="lead">{{ url }}</div>
-<p><strong><a class="btn btn-primary" href="{{ url }}">Proceed to this site</a></strong></p>
+<div class="btn-toolbar" role="toolbar" aria-label="...">
+  <a class="btn btn-primary" href="{{ url }}">Proceed to this site</a>
+  <a class="btn btn-success" href="{% url 'url_shortener:index' %}">Shorten another URL</a>
+</div>
 {% endautoescape %}
 {% endblock %}
