@@ -5,8 +5,7 @@ python:
 addons:
   postgresql: "9.3"
 
-cache:
-  pip
+cache: pip
 
 install:
   - pip install -r requirements.txt
@@ -21,7 +20,7 @@ branches:
 
 script:
   - flake8
-  - coverage run manage.py test
+  - coverage run manage.py test --omit='*tests*,*migrations*,*admin*,*wsgi*'
 
 after_success:
   - coverage report
