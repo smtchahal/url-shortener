@@ -15,6 +15,7 @@ install:
 
 env:
   - DJANGO_SETTINGS_MODULE="settings.test_settings"
+  - SECRET_KEY=test
 
 script:
 - flake8
