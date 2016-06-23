@@ -15,9 +15,14 @@ install:
 env:
   - DJANGO_SETTINGS_MODULE="settings.test_settings" SECRET_KEY=test
 
+branches:
+  only:
+    - master
+
 script:
   - flake8
-  - python manage.py test
+  - coverage run manage.py test
 
 after_success:
+  - coverage report
   - coveralls
