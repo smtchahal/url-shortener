@@ -14,8 +14,7 @@ install:
   # - pip install coveralls
 
 env:
-  - DJANGO_SETTINGS_MODULE="settings.test_settings"
-  - SECRET_KEY=test
+  - DJANGO_SETTINGS_MODULE="settings.test_settings" SECRET_KEY=test
 
 script:
 - flake8
