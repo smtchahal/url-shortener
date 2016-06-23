@@ -1,4 +1,4 @@
-from .common import *
+from .common import *  # noqa
 
 DEBUG = True
 
@@ -9,6 +9,6 @@ DATABASES = {
     }
 }
 
-STATIC_URL = 'http://static/'
+STATIC_URL = '/static/'
 
 ALLOWED_HOSTS = []
