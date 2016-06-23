@@ -5,8 +5,12 @@ python:
 addons:
   postgresql: "9.3"
 
+cache:
+  directories:
+  - $HOME/.pip-cache/
+
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements.txt --download-cache $HOME/.pip-cache
   # - pip install coveralls
 
 env:
@@ -14,7 +18,7 @@ env:
 
 script:
 - flake8
-- python manage.test test
+- python manage.py test
 # - coverage run --source=junction --omit='*tests*,*commands*,*migrations*,*admin*,*wsgi*' -m -v --tb=native
 # - coverage report -m
 
