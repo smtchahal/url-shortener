@@ -1,0 +1,22 @@
+language: python
+sudo: false
+python:
+- '3.4'
+addons:
+  postgresql: "9.3"
+
+install:
+  - pip install -r requirements.txt
+  # - pip install coveralls
+
+env:
+  - DJANGO_SETTINGS_MODULE="settings.test_settings"
+
+script:
+- flake8
+- python manage.test test
+# - coverage run --source=junction --omit='*tests*,*commands*,*migrations*,*admin*,*wsgi*' -m -v --tb=native
+# - coverage report -m
+
+# after_success:
+#   coveralls
