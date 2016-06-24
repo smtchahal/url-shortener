@@ -20,8 +20,8 @@ branches:
 
 script:
   - flake8
-  - coverage run manage.py test --omit='*tests*,*migrations*,*admin*,*wsgi*'
+  - coverage run --source=url_shortener,shorty --omit='*tests*,*migrations*,*admin*,*wsgi*' manage.py test
 
 after_success:
-  - coverage report
+  - coverage report -m
   - coveralls
