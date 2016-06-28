@@ -1,22 +1,12 @@
-import string
+from hashids import Hashids
 
-ALPHA_MAP = list(string.ascii_letters + string.digits)
-BASE = len(ALPHA_MAP)
+HASH_SALT = 'VyIZlWoq7VQCvJmq54gVHz5mb7GbaXdcT3Qz8dRssMyaYpTZl2ONBBnDA788Ef'
 
-
-def id_to_alias(num):
-    digits = []
-    while num:
-        remainder = num % BASE
-        digits.append(remainder)
-        num = num // BASE
-    digits = digits[::-1]
-    return ''.join([ALPHA_MAP[i] for i in digits])
+hashids = Hashids(salt=HASH_SALT)
 
 
-def alias_to_id(alias):
-    digits = [ALPHA_MAP.index(c) for c in alias][::-1]
-    num = 0
-    for i in range(len(digits)):
-        num += digits[i] * BASE**i
-    return num
+def hash_encode(num):
+    """
+    Returns hashids.encode(num) with salt.
+    """
+    return hashids.encode(num)

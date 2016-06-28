@@ -61,3 +61,5 @@ docs/_build/
 # PyBuilder
 target/
 
+# Django's sqlite3 db
+*.sqlite3

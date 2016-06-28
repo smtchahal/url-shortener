@@ -1,25 +1,11 @@
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from .misc import (id_to_alias,
-                   alias_to_id)
+from .misc import hash_encode
 from .forms import URLShortenerForm
 from .models import Link
 
 URL = 'https://www.example.com/'
-
-
-class TestMiscFunctions(TestCase):
-
-    def test_id_to_alias(self):
-        self.assertEqual(id_to_alias(125), 'cb')
-        self.assertEqual(id_to_alias(1), 'b')
-        self.assertEqual(id_to_alias(578), 'ju')
-
-    def test_alias_to_id(self):
-        self.assertEqual(alias_to_id('cb'), 125)
-        self.assertEqual(alias_to_id('b'), 1)
-        self.assertEqual(alias_to_id('ju'), 578)
 
 
 class TestRedirectView(TestCase):
@@ -63,7 +49,7 @@ def create_link(url):
     Helper function create a link.
     """
     link = Link.objects.create(url=url)
-    link.alias = id_to_alias(link.id)
+    link.alias = hash_encode(link.id)
     link.save()
     return link
 
@@ -93,7 +79,7 @@ class TestIndexView(TestCase):
         response = self.client.post(reverse('url_shortener:index'), {
             'url': URL,
         }, follow=True)
-        self.assert_link_created(response, id_to_alias(1))
+        self.assert_link_created(response, hash_encode(1))
 
     def test_index_with_alias_empty_database(self):
         """
@@ -116,7 +102,7 @@ class TestIndexView(TestCase):
         response = self.client.post(reverse('url_shortener:index'), {
             'url': URL,
         }, follow=True)
-        self.assert_link_created(response, id_to_alias(latest_link.id + 1))
+        self.assert_link_created(response, hash_encode(latest_link.id + 1))
 
     def test_index_with_alias_with_database(self):
         """
@@ -142,7 +128,7 @@ class TestIndexView(TestCase):
             'url': URL,
             'alias': link1.alias,  # Uh oh, conflicts with the first link
         }, follow=True)
-        self.assert_link_created(response, id_to_alias(link2.id + 1))
+        self.assert_link_created(response, hash_encode(link2.id + 1))
 
     def test_index_with_no_url_and_no_alias(self):
         """
@@ -226,7 +212,7 @@ class TestIndexView(TestCase):
         """
         response = self.client.post(reverse('url_shortener:index'), {
             'url': URL,
-            'alias': ''.join([id_to_alias(i) for i in range(300)]),
+            'alias': ''.join([hash_encode(i) for i in range(300)]),
         })
         self.assertContains(response, 'Error')
         self.assertContains(response, 'length')

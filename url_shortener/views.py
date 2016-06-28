@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import (HttpResponseRedirect,
                          HttpResponsePermanentRedirect)
 
-from .misc import id_to_alias
+from .misc import hash_encode
 from .forms import URLShortenerForm
 from .models import Link
 
@@ -18,11 +18,11 @@ def index(request):
             try:
                 latest_link = Link.objects.latest('id')
                 if Link.objects.filter(alias=alias):
-                    new_link.alias = id_to_alias(latest_link.id+1)
+                    new_link.alias = hash_encode(latest_link.id+1)
                 else:
-                    new_link.alias = alias or id_to_alias(latest_link.id+1)
+                    new_link.alias = alias or hash_encode(latest_link.id+1)
             except Link.DoesNotExist:
-                new_link.alias = alias or id_to_alias(1)
+                new_link.alias = alias or hash_encode(1)
             new_link.save()
             return HttpResponseRedirect(reverse('url_shortener:redirect', kwargs={
                 'alias': new_link.alias,
