@@ -50,6 +50,6 @@ def preview(request, alias):
     })
 
 
-def redirect(request, alias):
+def redirect(request, alias, extra=''):
     link = get_object_or_404(Link, alias__iexact=alias)
-    return HttpResponsePermanentRedirect(link.url)
+    return HttpResponsePermanentRedirect(link.url + extra)
