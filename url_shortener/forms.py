@@ -1,5 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from django.core.validators import RegexValidator
 
 from .models import Link
 
@@ -15,7 +16,11 @@ class URLShortenerForm(forms.Form):
         help_text=_("An optional alias you want to generate. "
                     "One will be chosen automatically if you don't enter one."),
         label=_('Alias (optional)'),
-        validators=_alias.validators,
+        validators=[RegexValidator(
+            regex=r'^[a-zA-Z0-9-_]+$',
+            code='invalid_alias',
+            message='Alias can only contain alphabets, numerals, underscores and hyphens',
+        )]
     )
 
     url = forms.URLField(

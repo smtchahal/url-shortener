@@ -12,25 +12,39 @@ class TestRedirectView(TestCase):
 
     def test_redirect_with_invalid_alias(self):
         """
-        URL with invalid alias should return 404.
+        Redirect URL with invalid alias should return 404.
         """
-        response = self.client.get(reverse('url_shortener:redirect', kwargs={'alias': 'hkjlh'}))
+        response = self.client.get(reverse('url_shortener:short_url', args=('hkjlh',)))
         self.assertEqual(response.status_code, 404)
 
     def test_redirect_with_valid_alias(self):
         """
-        URL with valid alias should redirect to appropriate URL
+        Redirect URL with valid alias should redirect to appropriate URL
         with 301 response.
         """
         link = Link.objects.create(url=URL, alias='b')
-        response = self.client.get(reverse('url_shortener:redirect', kwargs={'alias': 'b'}))
+        response = self.client.get(reverse('url_shortener:short_url', args=('b',)))
         self.assertRedirects(response, link.url, status_code=301)
+
+    def test_redirect_with_uppercase_alias(self):
+        """
+        Redirect URL with various combinations of uppercase letters
+        should always redirect to the same URL and refer to the same
+        row in database.
+        """
+        Link.objects.create(url=URL, alias='some_alias')
+        urls = (reverse('url_shortener:short_url', args=('Some_Alias',)),
+                reverse('url_shortener:short_url', args=('some_alias',)),
+                reverse('url_shortener:short_url', args=('sOmE_aLIas',)))
+        for url in urls:
+            response = self.client.get(url)
+            self.assertRedirects(response, URL, status_code=301)
 
     def test_redirect_preview_with_invalid_alias(self):
         """
         Preview URL with invalid alias should return 404 response.
         """
-        response = self.client.get(reverse('url_shortener:redirect', kwargs={'alias': 'blah'}))
+        response = self.client.get(reverse('url_shortener:short_url', args=('blah',)))
         self.assertEqual(response.status_code, 404)
 
     def test_redirect_preview_with_valid_alias(self):
@@ -39,7 +53,7 @@ class TestRedirectView(TestCase):
         the URL to redirect to.
         """
         link = Link.objects.create(url=URL, alias='b')
-        response = self.client.get(reverse('url_shortener:redirect', kwargs={'alias': 'b', 'preview': '+'}))
+        response = self.client.get(reverse('url_shortener:preview', args=('b',)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, link.url)
 
@@ -56,20 +70,20 @@ def create_link(url):
 
 class TestIndexView(TestCase):
 
+    maxDiff = None
+
     def assert_link_created(self, response, alias):
         """
-        Helper function to check whether a link was created successfully,
+        Helper function to check assert that a link was created successfully,
         given the `response` and the expected `alias`
         """
-        self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, reverse('url_shortener:redirect', kwargs={
-            'alias': alias,
-            'preview': '+',
-        }))
+        self.assertRedirects(response, reverse('url_shortener:preview', args=(alias,)))
         self.assertTemplateUsed(response, 'url_shortener/preview.html')
         link = Link.objects.latest('id')
         self.assertEqual(link.url, URL)
-        self.assertEqual(link.alias, alias)
+        self.assertEqual(link.alias, alias.lower())
+        self.assertContains(response, URL)
+        self.assertContains(response, alias)
 
     def test_index_with_no_alias_empty_database(self):
         """
@@ -119,7 +133,7 @@ class TestIndexView(TestCase):
 
     def test_index_with_conflicting_alias(self):
         """
-        In case of a conflicting alias, auto-generated alias will be used
+        In case of a conflicting alias, auto-generated alias should be used
         and an appropriate message displayed.
         """
         link1 = create_link(URL)
@@ -129,6 +143,8 @@ class TestIndexView(TestCase):
             'alias': link1.alias,  # Uh oh, conflicts with the first link
         }, follow=True)
         self.assert_link_created(response, hash_encode(link2.id + 1))
+        self.assertContains(response, link1.alias)
+        self.assertContains(response, 'exists')
 
     def test_index_with_no_url_and_no_alias(self):
         """
@@ -179,6 +195,24 @@ class TestIndexView(TestCase):
         self.assertContains(response, 'hyphen')
         self.assertContains(response, 'underscore')
         self.assertTemplateUsed('url_shortener/index.html')
+
+    def test_index_with_multiple_uppercase_aliases(self):
+        """
+        Make sure that aliases are case insensitive, i.e., after having
+        created a Link with a given alias, multiple combinations of that
+        alias shouldn't be allowed.
+        """
+        response = self.client.post(reverse('url_shortener:index'), {
+            'url': URL,
+            'alias': 'A-Good-Alias',
+        }, follow=True)
+        self.assert_link_created(response, 'A-Good-Alias')
+        response = self.client.post(reverse('url_shortener:index'), {
+            'url': URL,
+            'alias': 'a-good-alias',
+        })
+        links = Link.objects.filter(alias__iexact='a-good-alias')
+        self.assertEqual(len(links), 1)
 
     def test_index_with_invalid_url(self):
         """

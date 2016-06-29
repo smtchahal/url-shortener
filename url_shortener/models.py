@@ -6,8 +6,9 @@ class Link(models.Model):
     url = models.URLField(max_length=2083)
     alias = models.CharField(max_length=255, unique=True, validators=[
         RegexValidator(
-            regex=r'^[a-zA-Z0-9-_]+$',
-            message='Alias can only contain alphabets, numerals, underscores and hyphens',
+            regex=r'^[a-z0-9-_]+$',
+            code='invalid_alias',
+            message='Alias can only contain lowercase alphabets, numerals, underscores and hyphens',
         ),
     ])
 

@@ -2,10 +2,20 @@
 {% block title %}Preview | {{ title }}{% endblock %}
 {% block content %}
 {% autoescape on %}
-<h2>Preview of <strong>{{ full_alias }}</strong></h2>
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-info" role="info">
+      <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+      <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+      <span class="sr-only">Information</span>
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+<h2>Preview of <strong>{{ absolute_short_url }}</strong></h2>
 <p>This short URL redirects to:</p>
 <div id="url" class="lead">{{ url }}</div>
-<div class="btn-toolbar" role="toolbar" aria-label="...">
+<div class="btn-toolbar" role="toolbar" aria-label="buttons-toolbar">
   <a class="btn btn-primary" href="{{ url }}">Proceed to this site</a>
   <a class="btn btn-success" href="{% url 'url_shortener:index' %}">Shorten another URL</a>
 </div>

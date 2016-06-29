@@ -49,7 +49,7 @@
     {% endfor %}
     <label for="{{ form.alias.id_for_label }}">{{ form.alias.label }}</label>
     <div class="input-group{% if form.alias.errors %} has-error{% endif %}">
-      <span class="input-group-addon" id="alias-addon">{{ request.build_absolute_uri }}</span>
+      <span class="input-group-addon" id="alias-addon">{{ absolute_index_url }}</span>
       {{ form.alias|add_class:"form-control"|attr:"aria-describedby:alias-addon" }}
     </div>
   </div>
