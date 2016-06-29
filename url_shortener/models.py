@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.core.validators import RegexValidator
 
@@ -11,6 +13,8 @@ class Link(models.Model):
             message='Alias can only contain lowercase alphabets, numerals, underscores and hyphens',
         ),
     ])
+    clicks_count = models.PositiveIntegerField(default=0)
+    date_created = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return '{0} -> {1}'.format(self.alias, self.url)

@@ -25,6 +25,8 @@ class TestRedirectView(TestCase):
         link = Link.objects.create(url=URL, alias='b')
         response = self.client.get(reverse('url_shortener:short_url', args=('b',)))
         self.assertRedirects(response, link.url, status_code=301)
+        link.refresh_from_db()
+        self.assertEqual(link.clicks_count, 1)
 
     def test_redirect_with_uppercase_alias(self):
         """
@@ -32,13 +34,15 @@ class TestRedirectView(TestCase):
         should always redirect to the same URL and refer to the same
         row in database.
         """
-        Link.objects.create(url=URL, alias='some_alias')
+        link = Link.objects.create(url=URL, alias='some_alias')
         urls = (reverse('url_shortener:short_url', args=('Some_Alias',)),
                 reverse('url_shortener:short_url', args=('some_alias',)),
                 reverse('url_shortener:short_url', args=('sOmE_aLIas',)))
         for url in urls:
             response = self.client.get(url)
             self.assertRedirects(response, URL, status_code=301)
+        link.refresh_from_db()
+        self.assertEqual(link.clicks_count, len(urls))
 
     def test_redirect_preview_with_invalid_alias(self):
         """
@@ -56,6 +60,7 @@ class TestRedirectView(TestCase):
         response = self.client.get(reverse('url_shortener:preview', args=('b',)))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, link.url)
+        self.assertEqual(link.clicks_count, 0)
 
 
 def create_link(url):
