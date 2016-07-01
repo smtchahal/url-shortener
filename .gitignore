@@ -63,3 +63,6 @@ target/
 
 # Django's sqlite3 db
 *.sqlite3
+
+# Assets
+collected-static/

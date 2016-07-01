@@ -14,10 +14,6 @@
     "SECRET_KEY": {
       "description": "A randomly generated secret to secure your Django installation.",
       "generator": "secret"
-    },
-    "DISABLE_COLLECTSTATIC": {
-      "description": "Don't run python manage.py collectstatic --noinput on deploy",
-      "value": "1"
     }
   }
 }
