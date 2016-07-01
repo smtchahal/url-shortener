@@ -1,7 +1,12 @@
 {% extends 'url_shortener/base.html' %}
-{% block title %}Preview | {{ title }}{% endblock %}
+
+{% block title %}Preview - {{ title }}{% endblock %}
+
+{% block navextra %}
+<li role="presentation" class="active"><a href="{{ request.get_full_path }}">Preview</a></li>
+{% endblock %}
+
 {% block content %}
-{% autoescape on %}
 {% if messages %}
   {% for message in messages %}
     <div class="alert alert-info" role="info">
@@ -12,12 +17,19 @@
     </div>
   {% endfor %}
 {% endif %}
-<h2>Preview of <strong>{{ absolute_short_url }}</strong></h2>
+<p><input type="text" id="shortened-url" readonly class="form-control input-lg" value="{{ absolute_short_url }}" /></p>
 <p>This short URL redirects to:</p>
 <div id="url" class="lead">{{ url }}</div>
 <div class="btn-toolbar" role="toolbar" aria-label="buttons-toolbar">
   <a class="btn btn-primary" href="{{ url }}">Proceed to this site</a>
   <a class="btn btn-success" href="{% url 'url_shortener:index' %}">Shorten another URL</a>
 </div>
-{% endautoescape %}
+{% endblock %}
+
+{% block bodyextra %}
+<script>
+$('#shortened-url').focus().select().click(function() {
+  $(this).select();
+});
+</script>
 {% endblock %}

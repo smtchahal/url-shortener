@@ -14,21 +14,60 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
+  <style type="text/css">
+    .table thead > tr > td {
+      font-weight: bold;
+    }
+    html, body {
+      height: 100%;
+    }
+    #wrapper {
+      min-height: 100%;
+      height: auto !important;
+      height: 100%;
+      margin: 0 auto -60px;
+    }
+    #push, #footer {
+      height: 60px;
+    }
+    #footer {
+      background-color: #f5f5f5;
+    }
+    .credit {
+      margin: 20px 0;
+      color: #999;
+    }
+  </style>
 </head>
 <body>
   <div id="wrapper">
-    <div class="jumbotron" id="banner">
+    <div class="jumbotron" id="banner" style="padding-bottom: 0;">
       <div class="container">
         <h1><a href="{% url 'url_shortener:index' %}">URL Shortener</a></h1>
         <p>Shorten your long URLs and share them with your friends!</p>
+        <ul class="nav nav-tabs" style="border: 0;">
+          <li role="presentation" class="{% block index_nav %}{% endblock %}"><a href="{% url 'url_shortener:index' %}">Home</a></li>
+          <li role="presentation" class="{% block analytics_nav %}{% endblock %}"><a href="{% url 'url_shortener:analytics' %}">Analytics</a></li>
+          {% block navextra %}{% endblock %}
+        </ul>
       </div>
     </div>
     <div class="container">
       {% block content %}{% endblock %}
     </div>
+    <div id="push"></div>
+  </div>
+  <div id="footer">
+    <div class="container">
+      <p class="muted credit">
+        Copyright &copy; 2016 Sumit Chahal.
+        Source code available on <a href="https://github.com/smtchahal/url-shortener">GitHub</a>.
+      </p>
+    </div>
   </div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  {% block bodyextra %}{% endblock %}
 </body>
 </html>
 {% endwith %}

@@ -1,0 +1,62 @@
+{% extends 'url_shortener/base.html' %}
+
+{% block title %}Analytics - {{ title }}{% endblock %}
+
+{% block analytics_nav %}active{% endblock %}
+
+{% block local_nav %}
+{% endblock %}
+
+{% block content %}
+{% if links %}
+  <p>All short URLs and their click analytics is publicly available. Time is in UTC format.</p>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <td>Long URL</td>
+        <td>Created</td>
+        <td>Short URL</td>
+        <td>Clicks</td>
+      </tr>
+    </thead>
+    <tbody>
+    {% for link in links %}
+      <tr>
+        <td><a href="{{ link.url }}">{{ link.get_long_url_truncated }}</a></td>
+        <td>{{ link.get_date_created_human_friendly }}</td>
+        <td><a href="{{ link.get_preview_path }}">{{ link.alias }}</a></td>
+        <td>{{ link.clicks_count }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <nav>
+    <ul class="pagination">
+      {# Left #}
+      <li{% if page == 1 %} class="disabled"{% endif %}>
+        <a{% if page != 1 %} href='?page={{ page|add:"-1" }}'{% endif %} aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+
+      {# The list item #}
+      {% for i in count_pages %}
+        <li{% if forloop.counter == page %} class="active"{% endif %}>
+          <a href="?page={{ forloop.counter }}">{{ forloop.counter }}</a>
+        </li>
+      {% endfor %}
+
+      {# Right #}
+      <li{% if page == max_pages %} class="disabled"{% endif %}>
+        <a{% if page != max_pages %} href='?page={{ page|add:"1" }}'{% endif %} aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+{% else %}
+  <h1>No short URLs exist yet.</h1>
+  <p>Zero URLs have been shortened as of now.</p>
+  <p><a class="btn btn-primary" href="{% url 'url_shortener:index' %}" role="button">Shorten some URLs!</a></p>
+{% endif %}
+{% endblock %}

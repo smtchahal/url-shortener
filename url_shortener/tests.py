@@ -14,7 +14,7 @@ class TestRedirectView(TestCase):
         """
         Redirect URL with invalid alias should return 404.
         """
-        response = self.client.get(reverse('url_shortener:short_url', args=('hkjlh',)))
+        response = self.client.get(reverse('url_shortener:alias', args=('hkjlh',)))
         self.assertEqual(response.status_code, 404)
 
     def test_redirect_with_valid_alias(self):
@@ -23,7 +23,7 @@ class TestRedirectView(TestCase):
         with 301 response.
         """
         link = Link.objects.create(url=URL, alias='b')
-        response = self.client.get(reverse('url_shortener:short_url', args=('b',)))
+        response = self.client.get(reverse('url_shortener:alias', args=('b',)))
         self.assertRedirects(response, link.url, status_code=301)
         link.refresh_from_db()
         self.assertEqual(link.clicks_count, 1)
@@ -35,9 +35,9 @@ class TestRedirectView(TestCase):
         row in database.
         """
         link = Link.objects.create(url=URL, alias='some_alias')
-        urls = (reverse('url_shortener:short_url', args=('Some_Alias',)),
-                reverse('url_shortener:short_url', args=('some_alias',)),
-                reverse('url_shortener:short_url', args=('sOmE_aLIas',)))
+        urls = (reverse('url_shortener:alias', args=('Some_Alias',)),
+                reverse('url_shortener:alias', args=('some_alias',)),
+                reverse('url_shortener:alias', args=('sOmE_aLIas',)))
         for url in urls:
             response = self.client.get(url)
             self.assertRedirects(response, URL, status_code=301)
@@ -48,7 +48,7 @@ class TestRedirectView(TestCase):
         """
         Preview URL with invalid alias should return 404 response.
         """
-        response = self.client.get(reverse('url_shortener:short_url', args=('blah',)))
+        response = self.client.get(reverse('url_shortener:alias', args=('blah',)))
         self.assertEqual(response.status_code, 404)
 
     def test_redirect_preview_with_valid_alias(self):

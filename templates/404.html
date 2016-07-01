@@ -1,6 +1,7 @@
 {% extends 'url_shortener/base.html' %}
 
+{% block title %}URL Not Found - {{ title }}{% endblock %}
 {% block content %}
-<h1>404 Not Found</h1>
-<p>This short URL does not exist.</p>
+<h1>Error: Unable to find site's URL to connect to.</h1>
+<p>Please make sure that the URL is correct.</p>
 {% endblock %}

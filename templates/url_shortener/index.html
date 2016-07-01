@@ -1,8 +1,9 @@
 {% extends 'url_shortener/base.html' %}
 {% load widget_tweaks %}
 
+{% block index_nav %}active{% endblock %}
+
 {% block content %}
-{% autoescape on %}
 <form role="form" action="{% url 'url_shortener:index' %}" method="post">
   {% csrf_token %}
 
@@ -55,5 +56,4 @@
   </div>
 
 </form>
-{% endautoescape %}
 {% endblock %}
