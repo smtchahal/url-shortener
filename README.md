@@ -7,4 +7,4 @@
 
 A simple Django-based URL shortening web app.
 
-<a href="http://shorty-96.herokuapp.com/"><img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" /></a>
+<img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />
