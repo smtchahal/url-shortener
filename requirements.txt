@@ -1,5 +1,5 @@
 dj-database-url==0.4.1
-Django==1.9.7
+Django==1.11.29
 django-widget-tweaks==1.4.1
 flake8==2.6.0
 gunicorn==19.6.0
