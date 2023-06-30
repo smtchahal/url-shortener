@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.http import (HttpResponseRedirect,
@@ -54,6 +54,7 @@ def preview(request, alias):
 def redirect(request, alias, extra=''):
     link = get_object_or_404(Link, alias__iexact=alias)
     link.clicks_count += 1
+    print(link.clicks_count)
     link.save()
     return HttpResponsePermanentRedirect(link.url + extra)
 

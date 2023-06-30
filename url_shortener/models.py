@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 from django.db import models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.validators import RegexValidator
 
 
