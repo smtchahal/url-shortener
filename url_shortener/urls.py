@@ -1,13 +1,13 @@
 import os
 
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import include, path, re_path as url
 
 from . import views
 
 app_name = 'url_shortener'
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
+    path('', views.index, name='index'),
     url(r'^(?P<alias>[a-zA-Z0-9-_]+)$', views.redirect, name='alias'),
     url(r'^(?P<alias>[a-zA-Z0-9-_]+)(?P<extra>/.*)$', views.redirect, name='alias'),
     url(r'^(?P<alias>[a-zA-Z0-9-_]+)\+$', views.preview, name='preview'),

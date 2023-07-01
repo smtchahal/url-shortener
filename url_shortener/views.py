@@ -1,10 +1,10 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
 from django.http import (HttpResponseRedirect,
                          Http404,
                          HttpResponsePermanentRedirect)
-
+from django.db.models import F
 from .misc import (hash_encode,
                    get_absolute_short_url)
 from .forms import URLShortenerForm
@@ -53,13 +53,13 @@ def preview(request, alias):
 
 def redirect(request, alias, extra=''):
     link = get_object_or_404(Link, alias__iexact=alias)
-    link.clicks_count += 1
-    link.save()
+    link.clicks_count = F("clicks_count") + 1
+    link.save(update_fields=["clicks_count"])
     return HttpResponsePermanentRedirect(link.url + extra)
 
 
 def analytics(request):
-    links = list(Link.objects.all().order_by('-id'))
+    links = Link.objects.all().order_by('-id')
     if not links:
         return render(request, 'url_shortener/analytics.html')
 
@@ -77,13 +77,10 @@ def analytics(request):
     if page > max_pages:
         raise Http404('page ({}) is greater than max_pages ({})'.format(page, max_pages))
 
-    if page == max_pages:
-        # just get the remaining last items
-        curr_links = links[-(len(links) % lim):]
-    else:
-        start = (page-1) * lim
-        end = (page) * lim
-        curr_links = links[start:end]
+    start = (page-1) * lim
+    end = (page) * lim
+    curr_links = links[start:end]
+    # TODO: fix pagination
     return render(request, 'url_shortener/analytics.html', {
         'links': curr_links,
         'page': page,
