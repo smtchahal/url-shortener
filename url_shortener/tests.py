@@ -1,4 +1,3 @@
-import importlib
 import os
 import string
 
@@ -432,24 +431,3 @@ class TestRedirectWithExtra(TestCase):
         self.assertEqual(response['Location'], 'https://www.example.com/extra/path')
         link.refresh_from_db()
         self.assertEqual(link.clicks_count, 1)
-
-
-class TestHerokuUrlPatterns(TestCase):
-
-    def setUp(self):
-        self._dyno = os.environ.get('DYNO')
-
-    def tearDown(self):
-        if self._dyno is None:
-            os.environ.pop('DYNO', None)
-        else:
-            os.environ['DYNO'] = self._dyno
-        import url_shortener.urls
-        importlib.reload(url_shortener.urls)
-
-    def test_dyno_adds_static_pattern(self):
-        import url_shortener.urls
-        os.environ['DYNO'] = '1'
-        importlib.reload(url_shortener.urls)
-        patterns = url_shortener.urls.urlpatterns
-        self.assertTrue(any('~static' in p.regex.pattern for p in patterns))

@@ -3,8 +3,6 @@
 [![Build Status](https://travis-ci.org/smtchahal/url-shortener.svg?branch=master)](https://travis-ci.org/smtchahal/url-shortener)
 [![Coverage Status](https://coveralls.io/repos/github/smtchahal/url-shortener/badge.svg?branch=master)](https://coveralls.io/github/smtchahal/url-shortener?branch=master)
 
-[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
-
 A simple Django-based URL shortening web app.
 
 ## Local development
@@ -17,6 +15,6 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Docker and Heroku require no file copying — just set the env vars (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL`).
+Docker requires no file copying — just set the env vars (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL`).
 
 <img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />

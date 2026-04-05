@@ -20,7 +20,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, []),
 )
-# Read .env if present (local dev); in Docker/Heroku, env is already set.
+# Read .env if present (local dev); in Docker, env is already set.
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('SECRET_KEY')
@@ -33,7 +33,7 @@ DATABASES = {
         default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
     ),
 }
-# Heroku-style persistent connections when a URL is provided.
+# Persistent connections when a DATABASE_URL is provided.
 DATABASES['default'].setdefault('CONN_MAX_AGE', 500)
 
 
