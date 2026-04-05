@@ -50,4 +50,4 @@ USER app
 EXPOSE 8000
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["gunicorn", "shorty.wsgi", "--bind", "0.0.0.0:8000", "--log-file", "-"]
+CMD ["gunicorn", "shorty.wsgi", "--bind", "0.0.0.0:8000", "--log-file", "-", "--worker-tmp-dir", "/dev/shm"]
