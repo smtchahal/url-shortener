@@ -1,4 +1,3 @@
-import os
 import string
 
 from django.core.urlresolvers import reverse
