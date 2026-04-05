@@ -6,3 +6,5 @@ __pycache__
 *.sqlite3
 .venv
 collected-static
+.env
+requirements-dev.txt
