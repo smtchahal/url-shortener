@@ -70,3 +70,6 @@ collected-static/
 # IDEs
 /.idea/
 /.vscode/
+
+# Local environment variables (never commit secrets)
+.env

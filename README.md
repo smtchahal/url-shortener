@@ -7,4 +7,16 @@
 
 A simple Django-based URL shortening web app.
 
+## Local development
+
+```bash
+cp .env.example .env
+# Edit .env: set SECRET_KEY to a long random string
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+
+Docker and Heroku require no file copying — just set the env vars (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL`).
+
 <img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />

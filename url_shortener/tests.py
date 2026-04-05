@@ -1,7 +1,11 @@
-from django.core.urlresolvers import reverse
-from django.test import TestCase
+import importlib
+import os
+import string
 
-from .misc import hash_encode
+from django.core.urlresolvers import reverse
+from django.test import TestCase, RequestFactory
+
+from .misc import hash_encode, get_absolute_short_url
 from .forms import URLShortenerForm
 from .models import Link
 
@@ -279,3 +283,173 @@ class TestURLShortenerFormValidation(TestCase):
         for alias in INVALID_ALIASES:
             form = URLShortenerForm(data={'url': URL, 'alias': alias})
             self.assertTrue(not form.is_valid())
+
+
+def _bulk_create_links(n):
+    """Create n links with unique aliases aliasN."""
+    return [Link.objects.create(url=URL, alias='alias{}'.format(i)) for i in range(n)]
+
+
+class TestAnalyticsView(TestCase):
+
+    def test_analytics_empty(self):
+        response = self.client.get(reverse('url_shortener:analytics'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'url_shortener/analytics.html')
+        self.assertNotIn('links', response.context)
+
+    def test_analytics_default_page(self):
+        _bulk_create_links(3)
+        response = self.client.get(reverse('url_shortener:analytics'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['page'], 1)
+        self.assertEqual(response.context['max_pages'], 1)
+        self.assertEqual(len(response.context['links']), 3)
+
+    def test_analytics_middle_page(self):
+        _bulk_create_links(25)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': 2})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['links']), 10)
+
+    def test_analytics_last_partial_page(self):
+        _bulk_create_links(25)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': 3})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.context['links']), 5)
+
+    def test_analytics_last_page_exact_multiple(self):
+        # len % lim == 0: links[-0:] returns all, exercises that branch
+        _bulk_create_links(20)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': 2})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('links', response.context)
+
+    def test_analytics_page_zero(self):
+        _bulk_create_links(3)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': 0})
+        self.assertEqual(response.status_code, 404)
+
+    def test_analytics_page_negative(self):
+        _bulk_create_links(3)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': -1})
+        self.assertEqual(response.status_code, 404)
+
+    def test_analytics_page_non_integer(self):
+        _bulk_create_links(3)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': 'abc'})
+        self.assertEqual(response.status_code, 404)
+
+    def test_analytics_page_out_of_range(self):
+        _bulk_create_links(3)
+        response = self.client.get(reverse('url_shortener:analytics'), {'page': 99})
+        self.assertEqual(response.status_code, 404)
+
+
+class TestLinkModel(TestCase):
+
+    def setUp(self):
+        self.link = Link.objects.create(url='https://example.com/', alias='testalias')
+
+    def test_str(self):
+        self.assertEqual(str(self.link), 'testalias -> https://example.com/')
+
+    def test_get_long_url_truncated_strips_scheme_and_trailing_slash(self):
+        self.assertEqual(self.link.get_long_url_truncated(), 'example.com')
+
+    def test_get_long_url_truncated_keeps_path(self):
+        self.link.url = 'https://example.com/foo'
+        self.assertEqual(self.link.get_long_url_truncated(), 'example.com/foo')
+
+    def test_get_long_url_truncated_keeps_trailing_slash_with_query(self):
+        self.link.url = 'https://example.com/?x=1'
+        result = self.link.get_long_url_truncated()
+        self.assertIn('/?x=1', result)
+
+    def test_get_long_url_truncated_keeps_scheme_when_disabled(self):
+        result = self.link.get_long_url_truncated(remove_schema=False)
+        self.assertTrue(result.startswith('https://'))
+
+    def test_get_long_url_truncated_truncates_long_url(self):
+        self.link.url = 'https://example.com/' + 'a' * 50
+        result = self.link.get_long_url_truncated(remove_schema=False)
+        self.assertTrue(result.endswith('...'))
+        self.assertEqual(len(result), 33)  # default max_length=30 + '...'
+
+    def test_get_date_created_returns_string(self):
+        result = self.link.get_date_created()
+        self.assertIsInstance(result, str)
+        self.assertEqual(result, str(self.link.date_created))
+
+    def test_get_date_created_human_friendly_format(self):
+        result = self.link.get_date_created_human_friendly()
+        self.assertRegexpMatches(result, r'^\d{4} [A-Z][a-z]{2} \d{2}, \d{2}:\d{2} (AM|PM)$')
+
+    def test_get_alias_path(self):
+        expected = reverse('url_shortener:alias', args=(self.link.alias,))
+        self.assertEqual(self.link.get_alias_path(), expected)
+
+    def test_get_preview_path(self):
+        expected = reverse('url_shortener:preview', args=(self.link.alias,))
+        self.assertEqual(self.link.get_preview_path(), expected)
+
+
+class TestMisc(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_hash_encode_is_deterministic(self):
+        result = hash_encode(1)
+        self.assertEqual(result, hash_encode(1))
+        self.assertTrue(result)
+        self.assertTrue(all(c in string.ascii_lowercase for c in result))
+
+    def test_get_absolute_short_url_with_alias_strips_schema(self):
+        request = self.factory.get('/')
+        result = get_absolute_short_url(request, 'abc')
+        self.assertNotIn('http://', result)
+        self.assertIn('abc', result)
+
+    def test_get_absolute_short_url_with_alias_keeps_schema(self):
+        request = self.factory.get('/')
+        result = get_absolute_short_url(request, 'abc', remove_schema=False)
+        self.assertTrue(result.startswith('http://'))
+
+    def test_get_absolute_short_url_empty_alias(self):
+        request = self.factory.get('/')
+        result = get_absolute_short_url(request, '')
+        self.assertIsInstance(result, str)
+        self.assertTrue(result)
+
+
+class TestRedirectWithExtra(TestCase):
+
+    def test_redirect_with_extra_path(self):
+        link = Link.objects.create(url='https://www.example.com', alias='xtra')
+        response = self.client.get('/xtra/extra/path')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'https://www.example.com/extra/path')
+        link.refresh_from_db()
+        self.assertEqual(link.clicks_count, 1)
+
+
+class TestHerokuUrlPatterns(TestCase):
+
+    def setUp(self):
+        self._dyno = os.environ.get('DYNO')
+
+    def tearDown(self):
+        if self._dyno is None:
+            os.environ.pop('DYNO', None)
+        else:
+            os.environ['DYNO'] = self._dyno
+        import url_shortener.urls
+        importlib.reload(url_shortener.urls)
+
+    def test_dyno_adds_static_pattern(self):
+        import url_shortener.urls
+        os.environ['DYNO'] = '1'
+        importlib.reload(url_shortener.urls)
+        patterns = url_shortener.urls.urlpatterns
+        self.assertTrue(any('~static' in p.regex.pattern for p in patterns))
