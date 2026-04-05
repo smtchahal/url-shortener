@@ -45,6 +45,7 @@ RUN rm -f requirements-dev.txt \
     && chmod +x docker-entrypoint.sh \
     && chown -R app:app /app
 
+ENV HOME=/tmp
 USER app
 
 EXPOSE 8000
