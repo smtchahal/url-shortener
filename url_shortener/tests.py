@@ -1,6 +1,6 @@
 import string
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase, RequestFactory
 
 from .misc import hash_encode, get_absolute_short_url
@@ -26,7 +26,7 @@ class TestRedirectView(TestCase):
         """
         link = Link.objects.create(url=URL, alias='b')
         response = self.client.get(reverse('url_shortener:alias', args=('b',)))
-        self.assertRedirects(response, link.url, status_code=301)
+        self.assertRedirects(response, link.url, status_code=301, fetch_redirect_response=False)
         link.refresh_from_db()
         self.assertEqual(link.clicks_count, 1)
 
@@ -42,7 +42,7 @@ class TestRedirectView(TestCase):
                 reverse('url_shortener:alias', args=('sOmE_aLIas',)))
         for url in urls:
             response = self.client.get(url)
-            self.assertRedirects(response, URL, status_code=301)
+            self.assertRedirects(response, URL, status_code=301, fetch_redirect_response=False)
         link.refresh_from_db()
         self.assertEqual(link.clicks_count, len(urls))
 
@@ -381,7 +381,7 @@ class TestLinkModel(TestCase):
 
     def test_get_date_created_human_friendly_format(self):
         result = self.link.get_date_created_human_friendly()
-        self.assertRegexpMatches(result, r'^\d{4} [A-Z][a-z]{2} \d{2}, \d{2}:\d{2} (AM|PM)$')
+        self.assertRegex(result, r'^\d{4} [A-Z][a-z]{2} \d{2}, \d{2}:\d{2} (AM|PM)$')
 
     def test_get_alias_path(self):
         expected = reverse('url_shortener:alias', args=(self.link.alias,))

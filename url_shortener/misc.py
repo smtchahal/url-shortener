@@ -1,7 +1,7 @@
 import string
 
 from hashids import Hashids
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 HASH_SALT = 'VyIZlWoq7VQCvJmq54gVHz5mb7GbaXdcT3Qz8dRssMyaYpTZl2ONBBnDA788Ef'
 ALPHABET = string.ascii_lowercase

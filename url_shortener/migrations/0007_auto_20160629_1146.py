@@ -3,8 +3,8 @@
 from __future__ import unicode_literals
 
 import datetime
+from datetime import timezone
 from django.db import migrations, models
-from django.utils.timezone import utc
 
 
 class Migration(migrations.Migration):
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='link',
             name='date_created',
-            field=models.DateField(auto_now_add=True, default=datetime.datetime(2016, 6, 29, 11, 46, 20, 119212, tzinfo=utc)),
+            field=models.DateField(auto_now_add=True, default=datetime.datetime(2016, 6, 29, 11, 46, 20, 119212, tzinfo=timezone.utc)),
             preserve_default=False,
         ),
     ]
