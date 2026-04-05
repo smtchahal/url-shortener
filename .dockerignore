@@ -7,4 +7,3 @@ __pycache__
 .venv
 collected-static
 .env
-requirements-dev.txt

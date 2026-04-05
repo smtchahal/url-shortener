@@ -1,6 +1,5 @@
 import importlib
 import os
-import re
 import string
 
 from django.core.urlresolvers import reverse

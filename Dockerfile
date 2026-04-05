@@ -15,7 +15,7 @@ FROM builder AS test
 
 WORKDIR /app
 
-COPY requirements-dev.txt .
+COPY requirements.txt requirements-dev.txt ./
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
 COPY . .
@@ -42,7 +42,8 @@ COPY . .
 
 ENV DJANGO_SETTINGS_MODULE=settings.heroku
 
-RUN SECRET_KEY=build-time-placeholder python manage.py collectstatic --noinput \
+RUN rm -f requirements-dev.txt \
+    && SECRET_KEY=build-time-placeholder python manage.py collectstatic --noinput \
     && chmod +x docker-entrypoint.sh \
     && chown -R app:app /app
 
