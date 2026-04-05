@@ -1,10 +1,10 @@
-FROM python:3.6-slim AS builder
+FROM python:3.14-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq-dev gcc libc6-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade "pip<24"
+RUN pip install --upgrade pip
 
 WORKDIR /build
 COPY requirements.txt .
@@ -27,7 +27,7 @@ ENV DATABASE_URL=sqlite:////app/test.sqlite3
 CMD ["sh", "-c", "flake8 && python manage.py test"]
 
 
-FROM python:3.6-slim
+FROM python:3.14-slim
 
 RUN apt-get update && apt-get install -y --no-install-recommends libpq5 \
     && rm -rf /var/lib/apt/lists/* \
@@ -36,8 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libpq5 \
 
 WORKDIR /app
 
-COPY --from=builder /usr/local/lib/python3.6/site-packages /usr/local/lib/python3.6/site-packages
-COPY --from=builder /usr/local/bin/gunicorn /usr/local/bin/gunicorn
+COPY --from=builder /usr/local /usr/local
 
 COPY . .
 
