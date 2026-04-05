@@ -5,6 +5,8 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+      DEBUG: ${DEBUG:-false}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
     secrets:
       - secret_key
     depends_on:

@@ -9,4 +9,6 @@ fi
 SECRET_KEY=$(cat /run/secrets/secret_key)
 export SECRET_KEY
 
+python manage.py migrate --noinput
+
 exec "$@"

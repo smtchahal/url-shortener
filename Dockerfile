@@ -20,8 +20,9 @@ RUN pip install --no-cache-dir -r requirements-dev.txt
 
 COPY . .
 
-ENV DJANGO_SETTINGS_MODULE=settings.test_settings
 ENV SECRET_KEY=test
+ENV DEBUG=true
+ENV DATABASE_URL=sqlite:////app/test.sqlite3
 
 CMD ["sh", "-c", "flake8 && python manage.py test"]
 
@@ -40,10 +41,8 @@ COPY --from=builder /usr/local/bin/gunicorn /usr/local/bin/gunicorn
 
 COPY . .
 
-ENV DJANGO_SETTINGS_MODULE=settings.heroku
-
 RUN rm -f requirements-dev.txt \
-    && SECRET_KEY=build-time-placeholder python manage.py collectstatic --noinput \
+    && SECRET_KEY=build-time-placeholder ALLOWED_HOSTS=* python manage.py collectstatic --noinput \
     && chmod +x docker-entrypoint.sh \
     && chown -R app:app /app
 
