@@ -1,0 +1,8 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+.venv
+collected-static
