@@ -5,7 +5,7 @@
 
 A simple Django-based URL shortening web app.
 
-<img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />
+<img src="docs/screenshot.png" alt="URL Shortener Screenshot" />
 
 ## Local development
 
