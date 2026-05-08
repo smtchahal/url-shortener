@@ -51,7 +51,10 @@ Database migrations run automatically on startup — no manual step needed.
 docker compose down
 ```
 
-To also remove the database volume: `docker compose down -v`
+To also remove the database volume:
+
+> [!CAUTION]
+> `docker compose down -v` permanently deletes all database data.
 
 ---
 
