@@ -15,6 +15,53 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Docker requires no file copying — just set the env vars (`SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL`).
+## Running locally with Docker
+
+**Prerequisites:** Docker with the Compose plugin (`docker compose version`).
+
+### 1. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set at minimum:
+
+| Variable | Description |
+|---|---|
+| `SECRET_KEY` | Long random string (Django secret key) |
+| `DB_PASSWORD` | Password for the Postgres container |
+| `ALLOWED_HOSTS` | Comma-separated hostnames, e.g. `localhost,127.0.0.1` |
+
+The other variables in `.env.example` can be left as-is for local development.
+
+### 2. Start the app
+
+```bash
+docker compose up --build
+```
+
+The app will be available at <http://localhost:8000>.
+
+Database migrations run automatically on startup — no manual step needed.
+
+### 3. Stop the app
+
+```bash
+docker compose down
+```
+
+To also remove the database volume: `docker compose down -v`
+
+---
+
+### Running tests
+
+The `test` build target runs linting (`flake8`), the test suite, and prints a coverage report:
+
+```bash
+docker build --target test -t url-shortener-test .
+docker run --rm url-shortener-test
+```
 
 <img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />
