@@ -5,6 +5,8 @@
 
 A simple Django-based URL shortening web app.
 
+<img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />
+
 ## Local development
 
 ```bash
@@ -66,5 +68,3 @@ The `test` build target runs linting (`flake8`), the test suite, and prints a co
 docker build --target test -t url-shortener-test .
 docker run --rm url-shortener-test
 ```
-
-<img src="http://i.imgur.com/rDkOd8e.png" alt="URL Shortener Screenshot" />
