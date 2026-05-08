@@ -92,6 +92,11 @@ class TestIndexView(TestCase):
         self.assertContains(response, URL)
         self.assertContains(response, alias)
 
+    def test_index_get(self):
+        response = self.client.get(reverse('url_shortener:index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'url_shortener/index.html')
+
     def test_index_with_no_alias_empty_database(self):
         """
         Submitting index form with no alias specified should
