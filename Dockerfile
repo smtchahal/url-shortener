@@ -24,7 +24,7 @@ ENV SECRET_KEY=test
 ENV DEBUG=true
 ENV DATABASE_URL=sqlite:////app/test.sqlite3
 
-CMD ["sh", "-c", "flake8 && python manage.py test"]
+CMD ["sh", "-c", "flake8 && coverage run manage.py test && coverage report && coverage xml"]
 
 
 FROM python:3.14-slim

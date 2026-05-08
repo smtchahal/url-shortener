@@ -14,5 +14,14 @@ jobs:
       - name: Build test image
         run: docker build --target test -t url-shortener:test .
 
-      - name: Run flake8 and Django tests
-        run: docker run --rm url-shortener:test
+      - name: Run flake8, tests and coverage
+        run: docker run --name test-run url-shortener:test
+
+      - name: Extract coverage report
+        if: always()
+        run: docker cp test-run:/app/coverage.xml coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml

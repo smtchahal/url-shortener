@@ -1,7 +1,7 @@
 # URL Shortener
 
-[![Build Status](https://travis-ci.org/smtchahal/url-shortener.svg?branch=master)](https://travis-ci.org/smtchahal/url-shortener)
-[![Coverage Status](https://coveralls.io/repos/github/smtchahal/url-shortener/badge.svg?branch=master)](https://coveralls.io/github/smtchahal/url-shortener?branch=master)
+[![CI](https://github.com/smtchahal/url-shortener/actions/workflows/ci.yml/badge.svg)](https://github.com/smtchahal/url-shortener/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/smtchahal/url-shortener/branch/master/graph/badge.svg)](https://codecov.io/gh/smtchahal/url-shortener)
 
 A simple Django-based URL shortening web app.
 
