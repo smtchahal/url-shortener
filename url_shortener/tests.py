@@ -1,9 +1,11 @@
 import string
+from unittest import mock
 
+from django.db import IntegrityError
 from django.urls import reverse
 from django.test import TestCase, RequestFactory
 
-from .misc import hash_encode, get_absolute_short_url
+from .misc import hash_encode, generate_alias, get_absolute_short_url
 from .forms import URLShortenerForm
 from .models import Link
 
@@ -105,7 +107,7 @@ class TestIndexView(TestCase):
         response = self.client.post(reverse('url_shortener:index'), {
             'url': URL,
         }, follow=True)
-        self.assert_link_created(response, hash_encode(1))
+        self.assert_link_created(response, Link.objects.get().alias)
 
     def test_index_with_alias_empty_database(self):
         """
@@ -124,11 +126,11 @@ class TestIndexView(TestCase):
         with no alias should create a new link as expected.
         """
         create_link(URL)
-        latest_link = create_link(URL)
+        create_link(URL)
         response = self.client.post(reverse('url_shortener:index'), {
             'url': URL,
         }, follow=True)
-        self.assert_link_created(response, hash_encode(latest_link.id + 1))
+        self.assert_link_created(response, Link.objects.latest('id').alias)
 
     def test_index_with_alias_with_database(self):
         """
@@ -154,9 +156,47 @@ class TestIndexView(TestCase):
             'url': URL,
             'alias': link1.alias,  # Uh oh, conflicts with the first link
         }, follow=True)
-        self.assert_link_created(response, hash_encode(link2.id + 1))
+        new_alias = Link.objects.latest('id').alias
+        self.assertNotIn(new_alias, (link1.alias, link2.alias))
+        self.assert_link_created(response, new_alias)
         self.assertContains(response, link1.alias)
         self.assertContains(response, 'exists')
+
+    def test_index_retries_when_alias_taken_between_check_and_save(self):
+        """
+        If a concurrent request grabs the alias after the availability check,
+        the view should draw a new alias instead of returning a 500.
+        """
+        real_save = Link.save
+        calls = []
+
+        def flaky_save(link, *args, **kwargs):
+            calls.append(link.alias)
+            if len(calls) == 1:
+                raise IntegrityError('UNIQUE constraint failed')
+            return real_save(link, *args, **kwargs)
+
+        with mock.patch.object(Link, 'save', flaky_save):
+            response = self.client.post(reverse('url_shortener:index'), {
+                'url': URL,
+            }, follow=True)
+        self.assertEqual(len(calls), 2)
+        self.assertNotEqual(calls[0], calls[1])
+        self.assert_link_created(response, calls[1])
+
+    def test_squatting_next_hash_does_not_break_creation(self):
+        """
+        Registering the alias that the old ID-derived scheme would have
+        produced next must not make auto-generated creation fail.
+        """
+        create_link(URL)
+        for squatted in (hash_encode(2), hash_encode(3)):
+            Link.objects.create(url=URL, alias=squatted)
+        for _ in range(5):
+            response = self.client.post(reverse('url_shortener:index'), {
+                'url': URL,
+            })
+            self.assertEqual(response.status_code, 302)
 
     def test_index_with_no_url_and_no_alias(self):
         """
@@ -407,6 +447,14 @@ class TestMisc(TestCase):
         self.assertEqual(result, hash_encode(1))
         self.assertTrue(result)
         self.assertTrue(all(c in string.ascii_lowercase for c in result))
+
+    def test_generate_alias_is_unused_lowercase_and_unpredictable(self):
+        Link.objects.create(url=URL, alias='taken')
+        aliases = {generate_alias() for _ in range(20)}
+        self.assertEqual(len(aliases), 20)
+        for alias in aliases:
+            self.assertTrue(all(c in string.ascii_lowercase for c in alias))
+            self.assertNotEqual(alias, 'taken')
 
     def test_get_absolute_short_url_with_alias_strips_schema(self):
         request = self.factory.get('/')
